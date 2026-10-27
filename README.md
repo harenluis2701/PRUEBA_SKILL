@@ -23,7 +23,7 @@
 3. [Architecture Overview & Dependency Graph](#-architecture-overview--dependency-graph)
 4. [Technology Stack](#-technology-stack)
 5. [Database Design & Docker Setup](#-database-design--docker-setup)
-6. [Getting Started & Local Execution](#-getting-started--local-execution)
+6. [Getting Started & Local Execution (ZIP or Git)](#-getting-started--local-execution-zip-or-git)
 7. [Default Seeded Credentials](#-default-seeded-credentials)
 8. [RESTful API Specification & Testing Guide](#-restful-api-specification--testing-guide)
 9. [Bulk Excel Ingestion Protocol](#-bulk-excel-ingestion-protocol)
@@ -108,13 +108,6 @@ flowchart TD
     APP --> DOMAIN
 ```
 
-### Layer Responsibilities
-- **`SkillHub.Domain` (Pure C#):** Zero external NuGet dependencies. Defines core entities with encapsulated state mutators, domain exception hierarchy, and repository contracts.
-- **`SkillHub.Application`:** Contains DTO definitions, use-case services, schedule conflict algorithms, and external service abstractions (`IExcelReader`, `IPdfGenerator`).
-- **`SkillHub.Infrastructure`:** Implements data persistence using EF Core with PostgreSQL, Identity user stores, token minting, ClosedXML streaming, and QuestPDF rendering.
-- **`SkillHub.Api`:** Houses thin API controllers, JWT authentication filters, CORS policies, Swagger generation, and a centralized `ExceptionHandlingMiddleware` mapping domain exceptions to HTTP status codes (`400`, `403`, `404`, `500`).
-- **`client/`:** Participant SPA communicating via asynchronous `fetch` calls, storing JWT tokens in `localStorage`, and providing dynamic UI states.
-
 ---
 
 ## 💻 Technology Stack
@@ -167,50 +160,84 @@ volumes:
   haren_skillhub_data:
 ```
 
-### Relational Schema Highlights
-- **`Workshops`:** `Id` (UUID PK), `Code` (Unique Index, e.g. `FOT-001`), `Title`, `Description`, `InstructorId` (FK), `StartDateTime`, `EndDateTime`, `MaxCapacity`.
-- **`Enrollments`:** `Id` (UUID PK), `WorkshopId` (FK), `ParticipantId` (FK), `Status` (Int), `EnrolledAt` (Timestamp), `CancelledAt` (Nullable), `CancelledBy` (Nullable).
-  - *Design Note:* Filtered indexing on `(WorkshopId, Status)` and `(ParticipantId, Status)` guarantees swift spot calculation without preventing historical re-enrollments.
-- **`Instructors` / `Participants`:** Domain entities paired to Identity's `AspNetUsers` via unique `UserId` foreign keys.
+---
+
+## 🚀 Getting Started & Local Execution (ZIP or Git)
+
+Choose the workflow that matches how you obtained the project:
+
+### Option A: If you received the ZIP compressed file 📦
+1. Extract the compressed `.zip` archive on your machine.
+2. Open a terminal inside the unzipped folder:
+   ```bash
+   cd PRUEBA_SKILL
+   ```
+
+### Option B: If you are cloning from GitHub 🐙
+1. Clone the repository and enter the directory:
+   ```bash
+   git clone <repository-url>
+   cd PRUEBA_SKILL
+   ```
 
 ---
 
-## 🚀 Getting Started & Local Execution
+### Step-by-Step Execution Guide
 
-### Prerequisites
-- [.NET 10 SDK](https://dotnet.microsoft.com/)
-- [Docker Engine & Docker Compose](https://docs.docker.com/get-docker/)
-- Git CLI
-
-### Step 1: Clone and Inspect
-```bash
-git clone <repository-url>
-cd PRUEBA_SKILL
-```
-
-### Step 2: Spin Up PostgreSQL in Docker
+#### Step 1: Start the PostgreSQL Database in Docker
+Make sure Docker Desktop or the Docker daemon is running, then execute:
 ```bash
 docker compose up -d
 ```
-Check container status:
-```bash
-docker ps --filter "name=skillhub-postgres-haren"
-```
+> **What this does:** Spins up the `skillhub-postgres-haren` container on port `5434` with user `haren_admin` and database `skillhub_db`.
+>
+> *Verification command:*
+> ```bash
+> docker ps --filter "name=skillhub-postgres-haren"
+> ```
 
-### Step 3: Launch the Backend API
+#### Step 2: (Optional) Restore Database via Script or Migrations
+You have two flexible options to populate the database:
+
+- **Alternative 2.1 — Using the exported SQL Dump (`skillhub_dump.sql`):**
+  If you prefer restoring directly from the included database dump:
+  ```bash
+  docker exec -i skillhub-postgres-haren psql -U haren_admin -d skillhub_db < skillhub_dump.sql
+  ```
+
+- **Alternative 2.2 — Using Code-First Migrations (Recommended):**
+  The application automatically applies pending migrations and seeds initial data on boot. You can also run it manually via EF CLI:
+  ```bash
+  dotnet ef database update --project src/SkillHub.Infrastructure --startup-project src/SkillHub.Api
+  ```
+
+#### Step 3: Launch the Backend API
+Start the ASP.NET Core Web API:
 ```bash
 dotnet run --project src/SkillHub.Api/SkillHub.Api.csproj --urls "http://localhost:5050"
 ```
-> The API automatically verifies and applies pending EF Core migrations and seeds initial accounts, roles, and future workshops upon first boot.
->
-> 🌐 **Interactive Swagger Documentation:** [http://localhost:5050/swagger](http://localhost:5050/swagger)
+> **Expected Output:**
+> ```
+> Now listening on: http://localhost:5050
+> Application started. Press Ctrl+C to shut down.
+> ```
+> 🌐 **Interactive Swagger Documentation:** Open **[http://localhost:5050/swagger](http://localhost:5050/swagger)** in your browser.
 
-### Step 4: Launch the Participant Web Application
-Open a new terminal window in the project root:
-```bash
-python3 -m http.server 3000 --directory client
-```
-> 🌐 **Participant Web Portal:** [http://localhost:3000](http://localhost:3000)
+#### Step 4: Launch the Participant Web Application
+In a second terminal window (leaving the API running), start the frontend:
+
+- **Using Python 3 (Quickest):**
+  ```bash
+  python3 -m http.server 3000 --directory client
+  ```
+- **Or using Node.js / npx:**
+  ```bash
+  npx serve client -p 3000
+  ```
+- **Or directly in your browser:**
+  You can also double-click [`client/index.html`](client/index.html) to open it directly.
+
+> 🌐 **Participant Web Portal:** Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
