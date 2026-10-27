@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillHub — Talleres y Formación Práctica</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand brand-logo fs-3 text-primary d-flex align-items-center gap-2" href="#" onclick="showSection('workshops')">
+                <i class="bi bi-mortarboard-fill"></i> SkillHub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="nav-workshops" href="#" onclick="showSection('workshops')">
+                            <i class="bi bi-grid-fill me-1"></i> Catálogo de Talleres
+                        </a>
+                    </li>
+                    <li class="nav-item d-none" id="nav-my-enrollments-li">
+                        <a class="nav-link" id="nav-my-enrollments" href="#" onclick="showSection('my-enrollments')">
+                            <i class="bi bi-bookmark-check-fill me-1"></i> Mis Inscripciones
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2" id="nav-auth-buttons">
+                    <!-- Dynamic auth state will render here -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Alert Container -->
+    <div class="container mt-3" id="alert-container"></div>
+
+    <!-- Main Content Sections -->
+    <main class="container py-4">
+        <!-- 1. Workshops Catalog Section -->
+        <section id="section-workshops">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h2 class="fw-bold mb-1">Talleres Disponibles</h2>
+                    <p class="text-muted mb-0">Explora la oferta de formación práctica y asegura tu cupo.</p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadWorkshops()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="row g-4" id="workshops-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2">Cargando catálogo...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. My Enrollments Section -->
+        <section id="section-my-enrollments" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h2 class="fw-bold mb-1">Mis Inscripciones</h2>
+                    <p class="text-muted mb-0">Gestiona tus cupos y descarga tus constancias oficiales.</p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadMyEnrollments()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                </button>
+            </div>
+
+            <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Taller</th>
+                            <th>Instructor</th>
+                            <th>Horario</th>
+                            <th>Fecha Inscripción</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-enrollments-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. Login Section -->
+        <section id="section-login" class="d-none">
+            <div class="row justify-content-center py-4">
+                <div class="col-md-5">
+                    <div class="card auth-card p-4">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-person-circle fs-1 text-primary"></i>
+                            <h3 class="fw-bold mt-2">Iniciar Sesión</h3>
+                            <p class="text-muted small">Ingresa con tu correo institucional o de participante</p>
+                        </div>
+                        <form id="form-login" onsubmit="handleLogin(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="login-email" required placeholder="nombre@ejemplo.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Contraseña</label>
+                                <input type="password" class="form-control" id="login-password" required placeholder="••••••••">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                                Iniciar Sesión
+                            </button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <span class="small text-muted">¿No tienes una cuenta? </span>
+                            <a href="#" class="small fw-semibold text-decoration-none" onclick="showSection('register')">Regístrate aquí</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Register Section -->
+        <section id="section-register" class="d-none">
+            <div class="row justify-content-center py-4">
+                <div class="col-md-6">
+                    <div class="card auth-card p-4">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-person-plus-fill fs-1 text-success"></i>
+                            <h3 class="fw-bold mt-2">Registro de Participante</h3>
+                            <p class="text-muted small">Únete a la plataforma para participar en nuestros talleres</p>
+                        </div>
+                        <form id="form-register" onsubmit="handleRegister(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Nombre Completo</label>
+                                <input type="text" class="form-control" id="reg-name" required placeholder="Ej: Valentina Morales">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="reg-email" required placeholder="valentina@ejemplo.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Contraseña</label>
+                                <input type="password" class="form-control" id="reg-password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+                                Registrarme como Participante
+                            </button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <span class="small text-muted">¿Ya tienes cuenta? </span>
+                            <a href="#" class="small fw-semibold text-decoration-none" onclick="showSection('login')">Inicia sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
+        <div class="container small text-secondary">
+            SkillHub &copy; 2026 &mdash; Plataforma de Gestión de Talleres e Inscripciones
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
