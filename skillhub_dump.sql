@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ndrZtKgXzC7Nd8bUVRBNgkKOX4l5ROXIP4IbzYjOMmQJilvCIPnNAYSnUee4oNt
+\restrict Joo84m9zzGI14Cdig6AMidw3PFqH7XtTjvhXaV7WpEN45adT8MOUzznUegofJ29
 
 -- Dumped from database version 16.15
 -- Dumped by pg_dump version 16.15
@@ -329,6 +329,7 @@ a8cc6509-60da-4a7c-921e-beaa3a1168f8	db18f5b9-5278-43b4-9f4b-8d310a3dc15e
 52de09dc-3ba7-4170-8d9b-f9aebaa241a5	db18f5b9-5278-43b4-9f4b-8d310a3dc15e
 500788b8-51a0-448a-9315-240e3b80cabe	db18f5b9-5278-43b4-9f4b-8d310a3dc15e
 4e15563e-9a70-4392-8fd4-64be90a8ce18	db18f5b9-5278-43b4-9f4b-8d310a3dc15e
+65be7701-cca7-4264-a5fe-8658e8698b09	db18f5b9-5278-43b4-9f4b-8d310a3dc15e
 \.
 
 
@@ -353,6 +354,7 @@ a8cc6509-60da-4a7c-921e-beaa3a1168f8	Juan Perez	juan.perez@example.com	JUAN.PERE
 52de09dc-3ba7-4170-8d9b-f9aebaa241a5	Ana Martinez	ana.martinez@example.com	ANA.MARTINEZ@EXAMPLE.COM	ana.martinez@example.com	ANA.MARTINEZ@EXAMPLE.COM	t	AQAAAAIAAYagAAAAEGF3enDcDEfQLnhkvsNGuHiMCda4PADxXYA3XJ5TPII9Vbe9Y4hCcmK/1p5GN3IdTA==	EX4IJPRY3WQTWQGYETUUO4UHSUTWIT24	769b24c9-0ba5-449d-a69e-15a494c21776	\N	f	f	\N	t	0
 500788b8-51a0-448a-9315-240e3b80cabe	Santiago Lopez	santiago.lopez@example.com	SANTIAGO.LOPEZ@EXAMPLE.COM	santiago.lopez@example.com	SANTIAGO.LOPEZ@EXAMPLE.COM	t	AQAAAAIAAYagAAAAECLNFEAV3Rqkq9VRXiaYS/hJzbkfPtNZKhRnRI2IUR3ySN/RMZxZ6qLrlStZ2vvSlw==	7ZXXZE76MMT72JPNG3ZG5TD3XUAPJGME	45a68ca8-c4d6-4e1a-ac48-9aa7d3069e75	\N	f	f	\N	t	0
 4e15563e-9a70-4392-8fd4-64be90a8ce18	Valentina Castro	valentina.castro@example.com	VALENTINA.CASTRO@EXAMPLE.COM	valentina.castro@example.com	VALENTINA.CASTRO@EXAMPLE.COM	t	AQAAAAIAAYagAAAAENZ0h1JFQV2lQrlCHwvREZ8CllvcAEjTgJtX6lJGJvYuy/iQh5RcCnHNKNzmIvt3pQ==	A5HEOV36WGYZRC4I27IYYJK35QJOND6I	b38421c6-7d2f-44f4-8c1f-a5e40ea0d8c1	\N	f	f	\N	t	0
+65be7701-cca7-4264-a5fe-8658e8698b09	Camila Diaz	camila.diaz@test.com	CAMILA.DIAZ@TEST.COM	camila.diaz@test.com	CAMILA.DIAZ@TEST.COM	f	AQAAAAIAAYagAAAAEFQfpb2s7Wp6hnYIdVhMWDkL+xHe4mQ7XH34Mfgih/PQ7wY2M5TocjKDoAorUjNL6g==	UA7ACIGTD5NP4Q33UWYOSJXL7QIHUZIK	6ebe73dc-a55f-4091-bf10-00343466263c	\N	f	f	\N	t	0
 \.
 
 
@@ -365,6 +367,7 @@ cf8f4c22-1ac0-439d-96d6-f0ce50b9505f	ab7c7ae0-69dd-40d0-a193-e9db795e0872	2cc4d2
 4cb5b67a-92cd-4661-a5c8-601dd579785b	32439828-ef64-4319-b953-dea1628f34f5	2cc4d291-0ad1-4020-880b-3193c181230f	1	2026-10-27 23:14:15.149331+00	\N	\N
 f78bb170-bfe7-4835-9437-f604a5f411f0	cfe5908c-9704-4bf4-95ff-980dc8649b21	2cc4d291-0ad1-4020-880b-3193c181230f	2	2026-10-27 23:14:25.478912+00	2026-10-27 23:23:39.895385+00	juan.perez@example.com
 acf3e289-ff5a-460f-ae79-cb55c925260b	1390cd6d-a722-4f25-b97a-fbb5e0eb8592	2cc4d291-0ad1-4020-880b-3193c181230f	2	2026-10-27 23:14:24.40043+00	2026-10-27 23:23:42.698764+00	juan.perez@example.com
+4c1b66c0-0c3c-4f1d-8712-165153663c94	ab7c7ae0-69dd-40d0-a193-e9db795e0872	fbefb271-d4de-423f-a1b2-49791c4385da	2	2026-10-27 23:55:28.375083+00	2026-10-27 23:56:14.619182+00	camila.diaz@test.com
 \.
 
 
@@ -389,6 +392,7 @@ COPY public."Participants" ("Id", "UserId", "FullName", "Email") FROM stdin;
 5952f185-40ff-4ed6-8ee0-47a1f6080313	52de09dc-3ba7-4170-8d9b-f9aebaa241a5	Ana Martinez	ana.martinez@example.com
 dc776f5c-b7b6-4bee-8b57-55550aa01667	500788b8-51a0-448a-9315-240e3b80cabe	Santiago Lopez	santiago.lopez@example.com
 ba6510e6-517f-42a0-90df-2f2a0d0297e9	4e15563e-9a70-4392-8fd4-64be90a8ce18	Valentina Castro	valentina.castro@example.com
+fbefb271-d4de-423f-a1b2-49791c4385da	65be7701-cca7-4264-a5fe-8658e8698b09	Camila Diaz	camila.diaz@test.com
 \.
 
 
@@ -704,5 +708,5 @@ ALTER TABLE ONLY public."Workshops"
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ndrZtKgXzC7Nd8bUVRBNgkKOX4l5ROXIP4IbzYjOMmQJilvCIPnNAYSnUee4oNt
+\unrestrict Joo84m9zzGI14Cdig6AMidw3PFqH7XtTjvhXaV7WpEN45adT8MOUzznUegofJ29
 
