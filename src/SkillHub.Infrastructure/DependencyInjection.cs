@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SkillHub.Application.Interfaces;
 using SkillHub.Domain.Interfaces;
+using SkillHub.Infrastructure.Excel;
 using SkillHub.Infrastructure.Identity;
+using SkillHub.Infrastructure.Pdf;
 using SkillHub.Infrastructure.Persistence;
 using SkillHub.Infrastructure.Persistence.Repositories;
+using SkillHub.Infrastructure.Services;
 
 namespace SkillHub.Infrastructure;
 
@@ -37,6 +41,11 @@ public static class DependencyInjection
         services.AddScoped<IParticipantRepository, ParticipantRepository>();
         services.AddScoped<IWorkshopRepository, WorkshopRepository>();
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+
+        // Technical Infrastructure Services
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IExcelReader, ClosedXmlEnrollmentReader>();
+        services.AddScoped<IPdfGenerator, QuestPdfCertificateGenerator>();
 
         return services;
     }
