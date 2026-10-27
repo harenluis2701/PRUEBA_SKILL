@@ -1,0 +1,16 @@
+services:
+  skillhub-db:
+    image: postgres:16-alpine
+    container_name: skillhub-postgres-haren
+    restart: always
+    environment:
+      POSTGRES_DB: skillhub_db
+      POSTGRES_USER: haren_admin
+      POSTGRES_PASSWORD: skillharen123
+    ports:
+      - "5434:5432"
+    volumes:
+      - haren_skillhub_data:/var/lib/postgresql/data
+
+volumes:
+  haren_skillhub_data:

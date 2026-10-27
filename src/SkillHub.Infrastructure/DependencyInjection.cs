@@ -14,10 +14,10 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
-            ?? "Data Source=skillhub.db";
+            ?? "Host=localhost;Port=5434;Database=skillhub_db;Username=haren_admin;Password=skillharen123";
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseNpgsql(connectionString));
 
         services.AddIdentityCore<ApplicationUser>(options =>
         {

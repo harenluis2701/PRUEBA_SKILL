@@ -8,7 +8,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseSqlite("Data Source=skillhub.db");
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5434;Database=skillhub_db;Username=haren_admin;Password=skillharen123");
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }
