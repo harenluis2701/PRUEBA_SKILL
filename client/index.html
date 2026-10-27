@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillHub — Talleres y Formación Práctica</title>
+    <title>SkillHub — Centro de Formación Práctica</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -12,29 +16,29 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark py-3 sticky-top">
         <div class="container">
-            <a class="navbar-brand brand-logo fs-3 text-primary d-flex align-items-center gap-2" href="#" onclick="showSection('workshops')">
-                <i class="bi bi-mortarboard-fill"></i> SkillHub
+            <a class="navbar-brand brand-logo text-white d-flex align-items-center gap-2" href="#" onclick="showSection('workshops')">
+                <i class="bi bi-mortarboard-fill text-primary"></i> SkillHub
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link active" id="nav-workshops" href="#" onclick="showSection('workshops')">
-                            <i class="bi bi-grid-fill me-1"></i> Catálogo de Talleres
+                        <a class="nav-link active fw-medium" id="nav-workshops" href="#" onclick="showSection('workshops')">
+                            <i class="bi bi-grid-fill me-1"></i> Talleres
                         </a>
                     </li>
                     <li class="nav-item d-none" id="nav-my-enrollments-li">
-                        <a class="nav-link" id="nav-my-enrollments" href="#" onclick="showSection('my-enrollments')">
+                        <a class="nav-link fw-medium" id="nav-my-enrollments" href="#" onclick="showSection('my-enrollments')">
                             <i class="bi bi-bookmark-check-fill me-1"></i> Mis Inscripciones
                         </a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-2" id="nav-auth-buttons">
-                    <!-- Dynamic auth state will render here -->
+                    <!-- Dynamic auth state renders here -->
                 </div>
             </div>
         </div>
@@ -47,14 +51,18 @@
     <main class="container py-4">
         <!-- 1. Workshops Catalog Section -->
         <section id="section-workshops">
-            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <!-- Hero Banner -->
+            <div class="hero-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div>
-                    <h2 class="fw-bold mb-1">Talleres Disponibles</h2>
-                    <p class="text-muted mb-0">Explora la oferta de formación práctica y asegura tu cupo.</p>
+                    <span class="badge bg-primary-subtle text-primary fw-semibold mb-2 px-3 py-1 rounded-pill">Formación Presencial 2026</span>
+                    <h1 class="fw-bold mb-1 fs-2">Descubre y Domina Nuevas Habilidades</h1>
+                    <p class="text-white-50 mb-0">Talleres cortos prácticos dictados por instructores expertos.</p>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" onclick="loadWorkshops()">
-                    <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
-                </button>
+                <div>
+                    <button class="btn btn-outline-light btn-sm px-3 py-2 fw-semibold" onclick="loadWorkshops()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar Catálogo
+                    </button>
+                </div>
             </div>
 
             <div class="row g-4" id="workshops-container">
@@ -69,15 +77,15 @@
         <section id="section-my-enrollments" class="d-none">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <div>
-                    <h2 class="fw-bold mb-1">Mis Inscripciones</h2>
-                    <p class="text-muted mb-0">Gestiona tus cupos y descarga tus constancias oficiales.</p>
+                    <h2 class="fw-bold mb-1 fs-3">Mis Inscripciones</h2>
+                    <p class="text-muted mb-0 small">Consulta el estado de tus cupos o descarga tus constancias en PDF.</p>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" onclick="loadMyEnrollments()">
+                <button class="btn btn-outline-primary btn-sm px-3" onclick="loadMyEnrollments()">
                     <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
                 </button>
             </div>
 
-            <div class="table-responsive bg-white rounded-3 shadow-sm p-3">
+            <div class="table-responsive bg-white rounded-4 shadow-sm p-4 border">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
@@ -100,28 +108,30 @@
         <section id="section-login" class="d-none">
             <div class="row justify-content-center py-4">
                 <div class="col-md-5">
-                    <div class="card auth-card p-4">
+                    <div class="card auth-card p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <i class="bi bi-person-circle fs-1 text-primary"></i>
-                            <h3 class="fw-bold mt-2">Iniciar Sesión</h3>
-                            <p class="text-muted small">Ingresa con tu correo institucional o de participante</p>
+                            <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-2">
+                                <i class="bi bi-person-circle fs-2"></i>
+                            </div>
+                            <h3 class="fw-bold">Iniciar Sesión</h3>
+                            <p class="text-muted small">Ingresa con tus credenciales de participante o empleado</p>
                         </div>
                         <form id="form-login" onsubmit="handleLogin(event)">
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="login-email" required placeholder="nombre@ejemplo.com">
+                                <input type="email" class="form-control py-2" id="login-email" required placeholder="nombre@ejemplo.com">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Contraseña</label>
-                                <input type="password" class="form-control" id="login-password" required placeholder="••••••••">
+                                <input type="password" class="form-control py-2" id="login-password" required placeholder="••••••••">
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2">
                                 Iniciar Sesión
                             </button>
                         </form>
-                        <div class="text-center mt-3">
+                        <div class="text-center mt-4 pt-2 border-top">
                             <span class="small text-muted">¿No tienes una cuenta? </span>
-                            <a href="#" class="small fw-semibold text-decoration-none" onclick="showSection('register')">Regístrate aquí</a>
+                            <a href="#" class="small fw-semibold text-primary text-decoration-none" onclick="showSection('register')">Regístrate como participante</a>
                         </div>
                     </div>
                 </div>
@@ -131,33 +141,35 @@
         <!-- 4. Register Section -->
         <section id="section-register" class="d-none">
             <div class="row justify-content-center py-4">
-                <div class="col-md-6">
-                    <div class="card auth-card p-4">
+                <div class="col-md-5">
+                    <div class="card auth-card p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <i class="bi bi-person-plus-fill fs-1 text-success"></i>
-                            <h3 class="fw-bold mt-2">Registro de Participante</h3>
-                            <p class="text-muted small">Únete a la plataforma para participar en nuestros talleres</p>
+                            <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mb-2">
+                                <i class="bi bi-person-plus-fill fs-2"></i>
+                            </div>
+                            <h3 class="fw-bold">Registro de Participante</h3>
+                            <p class="text-muted small">Crea tu cuenta para comenzar a inscribirte en talleres</p>
                         </div>
                         <form id="form-register" onsubmit="handleRegister(event)">
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Nombre Completo</label>
-                                <input type="text" class="form-control" id="reg-name" required placeholder="Ej: Valentina Morales">
+                                <input type="text" class="form-control py-2" id="reg-name" required placeholder="Ej: Valentina Morales">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="reg-email" required placeholder="valentina@ejemplo.com">
+                                <input type="email" class="form-control py-2" id="reg-email" required placeholder="valentina@ejemplo.com">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold">Contraseña</label>
-                                <input type="password" class="form-control" id="reg-password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                                <input type="password" class="form-control py-2" id="reg-password" required minlength="6" placeholder="Mínimo 6 caracteres">
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
-                                Registrarme como Participante
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold mt-2">
+                                Registrarme
                             </button>
                         </form>
-                        <div class="text-center mt-3">
+                        <div class="text-center mt-4 pt-2 border-top">
                             <span class="small text-muted">¿Ya tienes cuenta? </span>
-                            <a href="#" class="small fw-semibold text-decoration-none" onclick="showSection('login')">Inicia sesión</a>
+                            <a href="#" class="small fw-semibold text-success text-decoration-none" onclick="showSection('login')">Inicia sesión</a>
                         </div>
                     </div>
                 </div>
@@ -166,8 +178,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-auto">
-        <div class="container small text-secondary">
+    <footer class="bg-white border-top text-center py-4 mt-auto">
+        <div class="container small text-muted">
             SkillHub &copy; 2026 &mdash; Plataforma de Gestión de Talleres e Inscripciones
         </div>
     </footer>

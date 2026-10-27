@@ -85,26 +85,26 @@ function renderNavbar() {
 
         navButtons.innerHTML = `
             <span class="navbar-text text-light small me-2">
-                <i class="bi bi-person-circle me-1"></i> ${user.fullName} (${user.role})
+                <i class="bi bi-person-circle me-1 text-primary"></i> <strong>${user.fullName}</strong> <span class="badge bg-secondary ms-1">${user.role}</span>
             </span>
-            <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
+            <button class="btn btn-outline-light btn-sm px-3" onclick="handleLogout()">
                 <i class="bi bi-box-arrow-right me-1"></i> Salir
             </button>
         `;
     } else {
         myEnrollmentsLi.classList.add('d-none');
         navButtons.innerHTML = `
-            <button class="btn btn-outline-light btn-sm" onclick="showSection('login')">
+            <button class="btn btn-outline-light btn-sm px-3" onclick="showSection('login')">
                 <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
             </button>
-            <button class="btn btn-primary btn-sm fw-semibold" onclick="showSection('register')">
+            <button class="btn btn-primary btn-sm px-3 fw-semibold" onclick="showSection('register')">
                 <i class="bi bi-person-plus me-1"></i> Registrarse
             </button>
         `;
     }
 }
 
-// 1. Load Workshops Catalog
+// 1. Load Workshops Catalog & User's Active Enrollments
 async function loadWorkshops() {
     clearAlert();
     const container = document.getElementById('workshops-container');
@@ -116,10 +116,26 @@ async function loadWorkshops() {
     `;
 
     try {
+        // Fetch workshops
         const response = await fetch(`${API_BASE_URL}/workshops`);
         if (!response.ok) throw new Error('No se pudo obtener el catálogo de talleres.');
-
         const workshops = await response.json();
+
+        // If user is authenticated as participant, also fetch their active enrollments to detect which workshops they are in
+        const enrolledWorkshopIds = new Set();
+        if (AuthState.isAuthenticated() && AuthState.isParticipant()) {
+            try {
+                const myRes = await fetch(`${API_BASE_URL}/enrollments/mine`, {
+                    headers: { 'Authorization': `Bearer ${AuthState.getToken()}` }
+                });
+                if (myRes.ok) {
+                    const myEnrollments = await myRes.json();
+                    myEnrollments
+                        .filter(e => e.status === 'Active')
+                        .forEach(e => enrolledWorkshopIds.add(e.workshopId));
+                }
+            } catch (ignore) {}
+        }
 
         if (workshops.length === 0) {
             container.innerHTML = `
@@ -134,35 +150,49 @@ async function loadWorkshops() {
         container.innerHTML = workshops.map(w => {
             const startDate = new Date(w.startDateTime).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
             const endDate = new Date(w.endDateTime).toLocaleString('es-CO', { timeStyle: 'short' });
-            const spotsClass = w.availableSpots > 0 ? 'bg-success text-white' : 'bg-danger text-white';
+            const spotsClass = w.availableSpots > 0 ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle';
             const hasSpots = w.availableSpots > 0;
+            const isAlreadyEnrolled = enrolledWorkshopIds.has(w.id);
 
             return `
                 <div class="col-md-6 col-lg-6">
-                    <div class="card card-workshop h-100 p-3">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card card-workshop h-100 p-4 ${isAlreadyEnrolled ? 'enrolled-card' : ''}">
+                        <div class="card-body d-flex flex-column p-0">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="badge badge-code">${w.code}</span>
-                                <span class="badge ${spotsClass} badge-spots">
-                                    <i class="bi bi-people-fill me-1"></i> ${w.availableSpots} / ${w.maxCapacity} cupos
-                                </span>
+                                <div class="d-flex align-items-center gap-2">
+                                    ${isAlreadyEnrolled ? `
+                                        <span class="badge bg-success text-white badge-spots">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Inscrito
+                                        </span>
+                                    ` : ''}
+                                    <span class="badge ${spotsClass} badge-spots">
+                                        <i class="bi bi-people-fill me-1"></i> ${w.availableSpots} / ${w.maxCapacity} cupos
+                                    </span>
+                                </div>
                             </div>
 
-                            <h5 class="card-title fw-bold text-dark mt-2">${w.title}</h5>
+                            <h5 class="card-title fw-bold text-dark mb-2">${w.title}</h5>
                             <p class="card-text text-muted small flex-grow-1">${w.description}</p>
 
-                            <div class="border-top pt-3 mt-2">
+                            <div class="border-top pt-3 mt-3">
                                 <div class="small text-secondary mb-1">
                                     <i class="bi bi-person-badge text-primary me-1"></i> <strong>Instructor:</strong> ${w.instructor.fullName} (${w.instructor.specialty})
                                 </div>
                                 <div class="small text-secondary mb-3">
-                                    <i class="bi bi-clock-history text-primary me-1"></i> <strong>Horario:</strong> ${startDate} - ${endDate}
+                                    <i class="bi bi-calendar3 text-primary me-1"></i> <strong>Horario:</strong> ${startDate} - ${endDate}
                                 </div>
 
-                                <button class="btn btn-primary w-100 fw-semibold ${!hasSpots ? 'disabled' : ''}" 
-                                        onclick="handleEnroll('${w.id}')">
-                                    <i class="bi bi-check2-circle me-1"></i> ${hasSpots ? 'Inscribirme al Taller' : 'Sin Cupos Disponibles'}
-                                </button>
+                                ${isAlreadyEnrolled ? `
+                                    <button class="btn btn-enrolled w-100 py-2" disabled>
+                                        <i class="bi bi-check-lg me-1"></i> Ya estás inscrito en este taller
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-primary w-100 py-2 fw-semibold ${!hasSpots ? 'disabled' : ''}" 
+                                            onclick="handleEnroll('${w.id}')">
+                                        <i class="bi bi-plus-circle me-1"></i> ${hasSpots ? 'Inscribirme al Taller' : 'Sin Cupos Disponibles'}
+                                    </button>
+                                `}
                             </div>
                         </div>
                     </div>
@@ -276,10 +306,10 @@ async function loadMyEnrollments() {
                                     <i class="bi bi-x-circle me-1"></i> Cancelar
                                 </button>
                                 <button class="btn btn-outline-primary" title="Descargar Constancia PDF" onclick="handleDownloadCertificate('${e.id}')">
-                                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                                    <i class="bi bi-file-earmark-pdf me-1"></i> Descargar PDF
                                 </button>
                             ` : `
-                                <span class="text-muted small italic">Sin acciones</span>
+                                <span class="text-muted small fst-italic">Cancelada</span>
                             `}
                         </div>
                     </td>
