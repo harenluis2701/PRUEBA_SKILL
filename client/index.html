@@ -36,6 +36,12 @@
                             <i class="bi bi-bookmark-check-fill me-1 text-warning"></i> Mis Inscripciones
                         </a>
                     </li>
+                    <!-- Panel Empleado -->
+                    <li class="nav-item d-none" id="nav-employee-panel-li">
+                        <a class="nav-link fw-medium" id="nav-employee-panel" href="#" onclick="showSection('employee-panel')">
+                            <i class="bi bi-shield-lock-fill me-1 text-warning"></i> Panel Empleado
+                        </a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center gap-2" id="nav-auth-buttons">
                     <!-- Dynamic auth state renders here -->
@@ -73,7 +79,7 @@
             </div>
         </section>
 
-        <!-- 2. My Enrollments Section -->
+        <!-- 2. My Enrollments Section (Participant) -->
         <section id="section-my-enrollments" class="d-none">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <div>
@@ -104,7 +110,131 @@
             </div>
         </section>
 
-        <!-- 3. Login Section -->
+        <!-- 3. Employee Administration Panel (NEW!) -->
+        <section id="section-employee-panel" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="fw-bold mb-1 fs-3">Panel de Gestión de Empleados</h2>
+                        <span class="badge bg-warning text-dark">Staff Only</span>
+                    </div>
+                    <p class="text-muted mb-0 small">Control de asistencia por taller, reporte de talleres más demandados y carga masiva Excel.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm px-3" onclick="loadEmployeePanel()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
+                    </button>
+                    <button class="btn btn-primary btn-sm px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#modalCreateWorkshop">
+                        <i class="bi bi-plus-circle me-1"></i> Publicar Taller
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs: Asistencia por Taller | Reporte Top | Importar Excel -->
+            <ul class="nav nav-pills mb-4 gap-2" id="employee-tabs">
+                <li class="nav-item">
+                    <button class="nav-link active fw-semibold" id="tab-attendees-btn" onclick="switchEmployeeTab('attendees')">
+                        <i class="bi bi-people-fill me-1"></i> Asistencia por Taller
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-semibold" id="tab-top-btn" onclick="switchEmployeeTab('top')">
+                        <i class="bi bi-bar-chart-fill me-1"></i> Reporte Top Talleres
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-semibold" id="tab-import-btn" onclick="switchEmployeeTab('import')">
+                        <i class="bi bi-file-earmark-excel-fill me-1"></i> Carga Masiva Excel
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab 1: Asistencia por Taller -->
+            <div id="tab-content-attendees">
+                <div class="card p-3 mb-4 bg-white border rounded-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small mb-1">Seleccionar Taller para consultar inscritos:</label>
+                            <select class="form-select" id="employee-workshop-select" onchange="loadWorkshopAttendees()">
+                                <option value="">Selecciona un taller...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="workshop-capacity-stats">
+                            <!-- Filled dynamically: cupos ocupados vs maximos -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive bg-white rounded-4 shadow-sm p-4 border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Participante</th>
+                                <th>Correo</th>
+                                <th>Fecha de Inscripción</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workshop-attendees-body">
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Selecciona un taller arriba para ver los inscritos.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Reporte Top Talleres con Más Inscritos -->
+            <div id="tab-content-top" class="d-none">
+                <div class="table-responsive bg-white rounded-4 shadow-sm p-4 border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Código</th>
+                                <th>Título del Taller</th>
+                                <th>Instructor</th>
+                                <th class="text-center">Capacidad Máxima</th>
+                                <th class="text-center">Inscritos Activos</th>
+                                <th class="text-center">% Ocupación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-workshops-body">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 3: Importar Excel -->
+            <div id="tab-content-import" class="d-none">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="card p-4 bg-white border rounded-4 shadow-sm">
+                            <h5 class="fw-bold mb-2"><i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Inscripción Masiva desde Excel</h5>
+                            <p class="text-muted small">Carga el archivo con las columnas <code>ParticipantEmail</code> y <code>WorkshopCode</code> (hoja <em>Enrollments</em>). Las filas válidas se guardarán y las fallidas se reportarán con su motivo exacto.</p>
+
+                            <form id="form-excel-upload" onsubmit="handleExcelImport(event)">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Seleccionar archivo Excel (.xlsx):</label>
+                                    <input type="file" class="form-control" id="excel-file-input" accept=".xlsx,.xls" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" id="btn-submit-excel">
+                                    <i class="bi bi-upload me-1"></i> Procesar Carga Masiva
+                                </button>
+                            </form>
+
+                            <div id="import-results-container" class="mt-4 d-none">
+                                <!-- Results table -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Login Section -->
         <section id="section-login" class="d-none">
             <div class="row justify-content-center py-4">
                 <div class="col-md-5">
@@ -138,7 +268,7 @@
             </div>
         </section>
 
-        <!-- 4. Register Section -->
+        <!-- 5. Register Section -->
         <section id="section-register" class="d-none">
             <div class="row justify-content-center py-4">
                 <div class="col-md-5">
@@ -176,6 +306,56 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal: Publicar Nuevo Taller (Empleado) -->
+    <div class="modal fade" id="modalCreateWorkshop" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-1"></i> Publicar Nuevo Taller</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="form-create-workshop" onsubmit="handleCreateWorkshop(event)">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Código Único (ej. FOT-002)</label>
+                            <input type="text" class="form-control" id="ws-code" required placeholder="COC-002">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Título del Taller</label>
+                            <input type="text" class="form-control" id="ws-title" required placeholder="Pastelería y Masas Dulces">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Descripción</label>
+                            <textarea class="form-control" id="ws-desc" rows="2" required placeholder="Aprende técnicas de repostería..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Correo del Instructor (debe existir)</label>
+                            <input type="email" class="form-control" id="ws-instructor-email" required placeholder="laura.gomez@skillhub.com">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Fecha y Hora Inicio</label>
+                                <input type="datetime-local" class="form-control" id="ws-start" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Fecha y Hora Fin</label>
+                                <input type="datetime-local" class="form-control" id="ws-end" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Cupo Máximo</label>
+                            <input type="number" class="form-control" id="ws-capacity" min="1" required placeholder="15">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Publicar Taller</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-white border-top text-center py-4 mt-auto">

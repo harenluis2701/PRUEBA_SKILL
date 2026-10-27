@@ -50,12 +50,16 @@ const AuthState = {
     isParticipant() {
         const u = this.getUser();
         return u && u.role === 'Participant';
+    },
+    isEmployee() {
+        const u = this.getUser();
+        return u && u.role === 'Employee';
     }
 };
 
 // UI Navigation Controller
 function showSection(sectionName) {
-    const sections = ['workshops', 'my-enrollments', 'login', 'register'];
+    const sections = ['workshops', 'my-enrollments', 'employee-panel', 'login', 'register'];
     sections.forEach(s => {
         const el = document.getElementById(`section-${s}`);
         const nav = document.getElementById(`nav-${s}`);
@@ -77,6 +81,14 @@ function showSection(sectionName) {
             return;
         }
         loadMyEnrollments();
+    }
+    if (sectionName === 'employee-panel') {
+        if (!AuthState.isEmployee()) {
+            showAlert('Acceso denegado: Esta sección es exclusiva para empleados.', 'danger');
+            showSection('workshops');
+            return;
+        }
+        loadEmployeePanel();
     }
 }
 
@@ -102,14 +114,23 @@ function clearAlert() {
 function renderNavbar() {
     const navButtons = document.getElementById('nav-auth-buttons');
     const myEnrollmentsLi = document.getElementById('nav-my-enrollments-li');
+    const employeePanelLi = document.getElementById('nav-employee-panel-li');
 
     if (AuthState.isAuthenticated()) {
         const user = AuthState.getUser();
-        myEnrollmentsLi.classList.remove('d-none');
+
+        if (AuthState.isParticipant()) {
+            myEnrollmentsLi.classList.remove('d-none');
+            employeePanelLi.classList.add('d-none');
+        } else if (AuthState.isEmployee()) {
+            myEnrollmentsLi.classList.add('d-none');
+            employeePanelLi.classList.remove('d-none');
+        }
 
         navButtons.innerHTML = `
             <span class="navbar-text text-light small me-2">
-                <i class="bi bi-person-circle me-1 text-warning"></i> <strong>${user.fullName}</strong> <span class="badge bg-light text-dark ms-1">${user.role}</span>
+                <i class="bi bi-person-circle me-1 text-warning"></i> <strong>${user.fullName}</strong> 
+                <span class="badge ${AuthState.isEmployee() ? 'bg-warning text-dark' : 'bg-light text-dark'} ms-1">${user.role}</span>
             </span>
             <button class="btn btn-outline-light btn-sm px-3" onclick="handleLogout()">
                 <i class="bi bi-box-arrow-right me-1"></i> Salir
@@ -117,6 +138,7 @@ function renderNavbar() {
         `;
     } else {
         myEnrollmentsLi.classList.add('d-none');
+        employeePanelLi.classList.add('d-none');
         navButtons.innerHTML = `
             <button class="btn btn-outline-light btn-sm px-3" onclick="showSection('login')">
                 <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
@@ -128,7 +150,7 @@ function renderNavbar() {
     }
 }
 
-// 1. Load Workshops Catalog (Compact 3-column cards with syllabus examples)
+// 1. Load Workshops Catalog
 async function loadWorkshops() {
     clearAlert();
     const container = document.getElementById('workshops-container');
@@ -170,7 +192,6 @@ async function loadWorkshops() {
             return;
         }
 
-        // Render as col-md-6 col-lg-4 (Compact, less wide cards!)
         container.innerHTML = workshops.map(w => {
             const startDate = new Date(w.startDateTime).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
             const endDate = new Date(w.endDateTime).toLocaleString('es-CO', { timeStyle: 'short' });
@@ -178,7 +199,6 @@ async function loadWorkshops() {
             const hasSpots = w.availableSpots > 0;
             const isAlreadyEnrolled = enrolledWorkshopIds.has(w.id);
 
-            // Syllabus / qué aprenderás
             const syllabusItems = WORKSHOP_SYLLABUS[w.code] || [
                 'Técnicas fundamentales y ejercicios guiados',
                 'Metodología práctica con retroalimentación en vivo'
@@ -205,7 +225,7 @@ async function loadWorkshops() {
                             <h6 class="fw-bold text-dark mb-1 fs-6">${w.title}</h6>
                             <p class="card-text text-muted small mb-2 flex-grow-0" style="font-size: 0.82rem;">${w.description}</p>
 
-                            <!-- Mini Syllabus: Qué aprenderás en este taller -->
+                            <!-- Mini Syllabus -->
                             <div class="workshop-topics mb-3 flex-grow-1">
                                 <div class="small fw-bold text-dark mb-1" style="font-size: 0.75rem;">
                                     <i class="bi bi-lightbulb-fill text-warning me-1"></i> Qué aprenderás:
@@ -249,7 +269,7 @@ async function loadWorkshops() {
     }
 }
 
-// 2. Handle Enrollment
+// 2. Handle Enrollment (Participant)
 async function handleEnroll(workshopId) {
     if (!AuthState.isAuthenticated()) {
         showAlert('Debes iniciar sesión para inscribirte en un taller.', 'warning');
@@ -258,7 +278,7 @@ async function handleEnroll(workshopId) {
     }
 
     if (!AuthState.isParticipant()) {
-        showAlert('Solo los usuarios con rol Participante pueden inscribirse en talleres.', 'danger');
+        showAlert('Estás conectado como empleado. Para inscribirte en talleres usa una cuenta de participante.', 'warning');
         return;
     }
 
@@ -285,7 +305,7 @@ async function handleEnroll(workshopId) {
     }
 }
 
-// 3. Load My Enrollments
+// 3. Load My Enrollments (Participant)
 async function loadMyEnrollments() {
     clearAlert();
     const tbody = document.getElementById('my-enrollments-body');
@@ -385,7 +405,11 @@ async function handleCancel(enrollmentId, workshopTitle) {
         }
 
         showAlert(`La inscripción al taller "${workshopTitle}" ha sido cancelada y el cupo fue liberado.`, 'success');
-        loadMyEnrollments();
+        if (AuthState.isParticipant()) {
+            loadMyEnrollments();
+        } else {
+            loadWorkshopAttendees();
+        }
     } catch (err) {
         showAlert(err.message, 'danger');
     }
@@ -419,7 +443,321 @@ async function handleDownloadCertificate(enrollmentId) {
     }
 }
 
-// 6. Login Handler
+// ==========================================
+// 6. EMPLOYEE PANEL LOGIC (NEW!)
+// ==========================================
+
+let allWorkshopsCache = [];
+
+function switchEmployeeTab(tabName) {
+    ['attendees', 'top', 'import'].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add('d-none');
+        document.getElementById(`tab-${t}-btn`).classList.remove('active');
+    });
+
+    document.getElementById(`tab-content-${tabName}`).classList.remove('d-none');
+    document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+
+    if (tabName === 'top') loadTopWorkshopsReport();
+}
+
+async function loadEmployeePanel() {
+    clearAlert();
+    try {
+        // Load workshops for dropdown
+        const res = await fetch(`${API_BASE_URL}/workshops`);
+        if (res.ok) {
+            allWorkshopsCache = await res.json();
+            const select = document.getElementById('employee-workshop-select');
+            select.innerHTML = '<option value="">-- Selecciona un taller --</option>' +
+                allWorkshopsCache.map(w => `<option value="${w.id}">${w.code} — ${w.title}</option>`).join('');
+        }
+    } catch (err) {
+        showAlert(err.message, 'danger');
+    }
+}
+
+async function loadWorkshopAttendees() {
+    const workshopId = document.getElementById('employee-workshop-select').value;
+    const tbody = document.getElementById('workshop-attendees-body');
+    const statsContainer = document.getElementById('workshop-capacity-stats');
+
+    if (!workshopId) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Selecciona un taller arriba para ver los inscritos.</td></tr>';
+        statsContainer.innerHTML = '';
+        return;
+    }
+
+    const workshop = allWorkshopsCache.find(w => w.id === workshopId);
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                <span class="ms-2 text-muted">Consultando inscritos...</span>
+            </td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/workshops/${workshopId}/enrollments`, {
+            headers: { 'Authorization': `Bearer ${AuthState.getToken()}` }
+        });
+
+        if (!res.ok) throw new Error('No se pudieron consultar los inscritos de este taller.');
+
+        const attendees = await res.json();
+        const activeCount = attendees.filter(a => a.status === 'Active').length;
+        const maxCap = workshop ? workshop.maxCapacity : attendees.length;
+
+        statsContainer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-end gap-3">
+                <div class="text-end">
+                    <span class="badge bg-success-subtle text-success fs-6 px-3 py-2 border border-success-subtle">
+                        <i class="bi bi-people-fill me-1"></i> ${activeCount} inscritos activos / ${maxCap} cupos máx.
+                    </span>
+                </div>
+            </div>
+        `;
+
+        if (attendees.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        No hay personas inscritas aún en este taller.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = attendees.map(a => {
+            const isCancelled = a.status === 'Cancelled';
+            const statusBadge = isCancelled 
+                ? '<span class="badge bg-secondary">Cancelada</span>'
+                : '<span class="badge bg-success">Activa</span>';
+
+            const enrolledDate = new Date(a.enrolledAt).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
+
+            return `
+                <tr>
+                    <td><strong>${a.participantName}</strong></td>
+                    <td><code>${a.participantEmail}</code></td>
+                    <td><small class="text-secondary">${enrolledDate}</small></td>
+                    <td>${statusBadge}</td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-success" title="Descargar Constancia PDF" onclick="handleDownloadCertificate('${a.id}')" ${isCancelled ? 'disabled' : ''}>
+                                <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                            </button>
+                            ${!isCancelled ? `
+                                <button class="btn btn-outline-danger" title="Cancelar inscripción como Empleado" onclick="handleCancel('${a.id}', '${a.workshopTitle}')">
+                                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                                </button>
+                            ` : `
+                                <span class="badge bg-light text-muted ms-1">Cancelada por: ${a.cancelledBy || 'Staff'}</span>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">${err.message}</td></tr>`;
+    }
+}
+
+// Top Workshops Report
+async function loadTopWorkshopsReport() {
+    const tbody = document.getElementById('top-workshops-body');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                <span class="ms-2 text-muted">Generando reporte de talleres más demandados...</span>
+            </td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/reports/top-workshops`, {
+            headers: { 'Authorization': `Bearer ${AuthState.getToken()}` }
+        });
+
+        if (!res.ok) throw new Error('No se pudo generar el reporte.');
+
+        const report = await res.json();
+
+        if (report.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay talleres registrados.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = report.map((item, index) => {
+            const occupancyPct = Math.round((item.activeEnrollmentsCount / item.maxCapacity) * 100);
+            const rankBadge = index === 0 
+                ? '<span class="badge bg-warning text-dark fs-6">🥇 1°</span>'
+                : index === 1
+                ? '<span class="badge bg-secondary fs-6">🥈 2°</span>'
+                : index === 2
+                ? '<span class="badge bg-danger-subtle text-danger fs-6">🥉 3°</span>'
+                : `<span class="badge bg-light text-dark">${index + 1}°</span>`;
+
+            return `
+                <tr>
+                    <td>${rankBadge}</td>
+                    <td><span class="badge badge-code">${item.code}</span></td>
+                    <td><strong>${item.title}</strong></td>
+                    <td>${item.instructorName}</td>
+                    <td class="text-center font-monospace">${item.maxCapacity}</td>
+                    <td class="text-center">
+                        <span class="badge bg-success fs-6">${item.activeEnrollmentsCount} activos</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 8px; max-width: 100px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: ${occupancyPct}%"></div>
+                            </div>
+                            <small class="fw-bold text-dark">${occupancyPct}%</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">${err.message}</td></tr>`;
+    }
+}
+
+// Bulk Excel Import
+async function handleExcelImport(event) {
+    event.preventDefault();
+    clearAlert();
+
+    const fileInput = document.getElementById('excel-file-input');
+    const submitBtn = document.getElementById('btn-submit-excel');
+    const resultsContainer = document.getElementById('import-results-container');
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showAlert('Por favor selecciona un archivo Excel.', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando filas...';
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/enrollments/import`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${AuthState.getToken()}`
+            },
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Error al procesar el archivo Excel.');
+        }
+
+        showAlert(`Carga completada: ${data.enrolledCount} inscripciones procesadas exitosamente.`, 'success');
+
+        resultsContainer.classList.remove('d-none');
+        resultsContainer.innerHTML = `
+            <div class="alert alert-info">
+                <strong>Resumen de Carga:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Filas inscritas exitosamente: <strong>${data.enrolledCount}</strong></li>
+                    <li>Filas rechazadas: <strong>${data.rejectedRows ? data.rejectedRows.length : 0}</strong></li>
+                </ul>
+            </div>
+            ${data.rejectedRows && data.rejectedRows.length > 0 ? `
+                <h6 class="fw-bold mt-3 text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Detalle de Filas Rechazadas:</h6>
+                <div class="table-responsive border rounded-3 bg-light">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Fila Excel</th>
+                                <th>Motivo del Rechazo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.rejectedRows.map(r => `
+                                <tr>
+                                    <td><span class="badge bg-danger">Fila ${r.rowNumber}</span></td>
+                                    <td class="text-danger small">${r.reason}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            ` : '<div class="alert alert-success mt-2">¡Todas las filas del archivo fueron válidas y procesadas sin errores!</div>'}
+        `;
+
+        // Refresh workshops cache
+        loadEmployeePanel();
+    } catch (err) {
+        showAlert(err.message, 'danger');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-upload me-1"></i> Procesar Carga Masiva';
+    }
+}
+
+// Create Workshop (Employee)
+async function handleCreateWorkshop(event) {
+    event.preventDefault();
+    clearAlert();
+
+    const request = {
+        code: document.getElementById('ws-code').value.trim(),
+        title: document.getElementById('ws-title').value.trim(),
+        description: document.getElementById('ws-desc').value.trim(),
+        instructorEmail: document.getElementById('ws-instructor-email').value.trim(),
+        startDateTime: new Date(document.getElementById('ws-start').value).toISOString(),
+        endDateTime: new Date(document.getElementById('ws-end').value).toISOString(),
+        maxCapacity: parseInt(document.getElementById('ws-capacity').value, 10)
+    };
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/workshops`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AuthState.getToken()}`
+            },
+            body: JSON.stringify(request)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Error al crear el taller.');
+        }
+
+        // Close modal
+        const modalEl = document.getElementById('modalCreateWorkshop');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        showAlert(`¡Taller "${data.title}" (${data.code}) publicado exitosamente!`, 'success');
+        document.getElementById('form-create-workshop').reset();
+
+        loadEmployeePanel();
+        loadWorkshops();
+    } catch (err) {
+        showAlert(err.message, 'danger');
+    }
+}
+
+// ==========================================
+// 7. LOGIN & REGISTRATION
+// ==========================================
+
 async function handleLogin(event) {
     event.preventDefault();
     clearAlert();
@@ -446,14 +784,18 @@ async function handleLogin(event) {
             role: data.role
         });
 
-        showAlert(`¡Bienvenido de nuevo, ${data.fullName}!`, 'success');
-        showSection('workshops');
+        showAlert(`¡Bienvenido de nuevo, ${data.fullName}! (${data.role})`, 'success');
+
+        if (data.role === 'Employee') {
+            showSection('employee-panel');
+        } else {
+            showSection('workshops');
+        }
     } catch (err) {
         showAlert(err.message, 'danger');
     }
 }
 
-// 7. Register Handler
 async function handleRegister(event) {
     event.preventDefault();
     clearAlert();
@@ -488,7 +830,6 @@ async function handleRegister(event) {
     }
 }
 
-// 8. Logout Handler
 function handleLogout() {
     AuthState.clear();
     showAlert('Has cerrado sesión correctamente.', 'info');
