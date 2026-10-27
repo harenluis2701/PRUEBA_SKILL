@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navbar en Verde Oscuro -->
     <nav class="navbar navbar-expand-lg navbar-dark py-3 sticky-top">
         <div class="container">
             <a class="navbar-brand brand-logo text-white d-flex align-items-center gap-2" href="#" onclick="showSection('workshops')">
-                <i class="bi bi-mortarboard-fill text-primary"></i> SkillHub
+                <i class="bi bi-mortarboard-fill"></i> SkillHub
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
@@ -28,12 +28,12 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
                     <li class="nav-item">
                         <a class="nav-link active fw-medium" id="nav-workshops" href="#" onclick="showSection('workshops')">
-                            <i class="bi bi-grid-fill me-1"></i> Talleres
+                            <i class="bi bi-grid-fill me-1 text-warning"></i> Talleres
                         </a>
                     </li>
                     <li class="nav-item d-none" id="nav-my-enrollments-li">
                         <a class="nav-link fw-medium" id="nav-my-enrollments" href="#" onclick="showSection('my-enrollments')">
-                            <i class="bi bi-bookmark-check-fill me-1"></i> Mis Inscripciones
+                            <i class="bi bi-bookmark-check-fill me-1 text-warning"></i> Mis Inscripciones
                         </a>
                     </li>
                 </ul>
@@ -51,12 +51,12 @@
     <main class="container py-4">
         <!-- 1. Workshops Catalog Section -->
         <section id="section-workshops">
-            <!-- Hero Banner -->
+            <!-- Hero Banner con Verde Oscuro a Morado -->
             <div class="hero-banner d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div>
-                    <span class="badge bg-primary-subtle text-primary fw-semibold mb-2 px-3 py-1 rounded-pill">Formación Presencial 2026</span>
-                    <h1 class="fw-bold mb-1 fs-2">Descubre y Domina Nuevas Habilidades</h1>
-                    <p class="text-white-50 mb-0">Talleres cortos prácticos dictados por instructores expertos.</p>
+                    <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1 rounded-pill">Temporada 2026</span>
+                    <h1 class="fw-bold mb-1 fs-2">Aprende Haciendo con SkillHub</h1>
+                    <p class="text-white-50 mb-0">Talleres presenciales en fotografía, cocina, oratoria y diseño visual.</p>
                 </div>
                 <div>
                     <button class="btn btn-outline-light btn-sm px-3 py-2 fw-semibold" onclick="loadWorkshops()">
@@ -67,7 +67,7 @@
 
             <div class="row g-4" id="workshops-container">
                 <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="spinner-border text-success" role="status"></div>
                     <p class="text-muted mt-2">Cargando catálogo...</p>
                 </div>
             </div>
@@ -78,9 +78,9 @@
             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <div>
                     <h2 class="fw-bold mb-1 fs-3">Mis Inscripciones</h2>
-                    <p class="text-muted mb-0 small">Consulta el estado de tus cupos o descarga tus constancias en PDF.</p>
+                    <p class="text-muted mb-0 small">Consulta el estado de tus cupos o descarga tus constancias oficiales en PDF.</p>
                 </div>
-                <button class="btn btn-outline-primary btn-sm px-3" onclick="loadMyEnrollments()">
+                <button class="btn btn-outline-success btn-sm px-3" onclick="loadMyEnrollments()">
                     <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
                 </button>
             </div>
@@ -110,11 +110,11 @@
                 <div class="col-md-5">
                     <div class="card auth-card p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-2">
+                            <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mb-2">
                                 <i class="bi bi-person-circle fs-2"></i>
                             </div>
                             <h3 class="fw-bold">Iniciar Sesión</h3>
-                            <p class="text-muted small">Ingresa con tus credenciales de participante o empleado</p>
+                            <p class="text-muted small">Ingresa con tu correo de participante o empleado</p>
                         </div>
                         <form id="form-login" onsubmit="handleLogin(event)">
                             <div class="mb-3">
@@ -131,7 +131,7 @@
                         </form>
                         <div class="text-center mt-4 pt-2 border-top">
                             <span class="small text-muted">¿No tienes una cuenta? </span>
-                            <a href="#" class="small fw-semibold text-primary text-decoration-none" onclick="showSection('register')">Regístrate como participante</a>
+                            <a href="#" class="small fw-semibold text-success text-decoration-none" onclick="showSection('register')">Regístrate como participante</a>
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                 <div class="col-md-5">
                     <div class="card auth-card p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mb-2">
+                            <div class="d-inline-flex p-3 rounded-circle bg-warning-subtle text-dark mb-2">
                                 <i class="bi bi-person-plus-fill fs-2"></i>
                             </div>
                             <h3 class="fw-bold">Registro de Participante</h3>
@@ -163,7 +163,7 @@
                                 <label class="form-label small fw-semibold">Contraseña</label>
                                 <input type="password" class="form-control py-2" id="reg-password" required minlength="6" placeholder="Mínimo 6 caracteres">
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-semibold mt-2">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2">
                                 Registrarme
                             </button>
                         </form>

@@ -1,104 +1,136 @@
 :root {
-    --primary-color: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-light: #eef2ff;
-    --dark-surface: #0f172a;
-    --card-bg: #ffffff;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
+    /* Paleta Armónica: Verde Bosque, Naranja Cálido, Beige/Crema, Morado y Acentos Neutros */
+    --forest-green: #1b4332;       /* Verde oscuro elegante para navbar y títulos */
+    --forest-green-light: #2d6a4f; /* Verde medio */
+    --orange-primary: #e76f51;     /* Naranja cálido para botones y destacados */
+    --orange-hover: #d95d3f;       /* Naranja hover */
+    --purple-accent: #6b21a8;      /* Morado para badges de código y etiquetas clave */
+    --purple-light: #f3e8ff;       /* Fondo morado suave */
+    --beige-bg: #fdfbf7;           /* Beige / Crema cálido para el fondo general */
+    --card-bg: #ffffff;            /* Blanco puro para las tarjetas */
+    --text-dark: #1f2937;          /* Casi negro para lectura nítida */
+    --text-muted: #6b7280;         /* Gris sutil */
+    --border-soft: #f0ebe1;        /* Borde beige suave */
 }
 
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    background-color: var(--beige-bg);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: var(--text-main);
+    color: var(--text-dark);
 }
 
 main {
     flex: 1;
 }
 
-/* Navbar */
+/* Navbar en Verde Oscuro Bosque */
 .navbar {
-    background-color: var(--dark-surface) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: var(--forest-green) !important;
+    border-bottom: 2px solid rgba(231, 111, 81, 0.4);
 }
 
 .brand-logo {
     font-weight: 800;
     letter-spacing: -0.5px;
     font-size: 1.4rem;
+    color: #ffffff !important;
 }
 
-/* Hero Section Banner */
+.brand-logo i {
+    color: var(--orange-primary) !important;
+}
+
+/* Banner de Bienvenida con degradado Verde Oscuro a Morado Profundo */
 .hero-banner {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 55%, #4a1d96 100%);
     color: white;
     border-radius: 16px;
-    padding: 2.5rem 2rem;
-    margin-bottom: 2.5rem;
-    box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.2);
+    padding: 2.2rem 2rem;
+    margin-bottom: 2.2rem;
+    box-shadow: 0 10px 25px -5px rgba(27, 67, 50, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Workshop Cards */
+/* Tarjetas de Talleres: Compactas (Col-4 en pantallas grandes) y con detalles enriquecidos */
 .card-workshop {
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
     background: var(--card-bg);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
 }
 
 .card-workshop:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -3px rgba(27, 67, 50, 0.12);
+    border-color: #d1c7b7;
 }
 
 .card-workshop.enrolled-card {
-    border: 2px solid #10b981;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 40%);
+    border: 2px solid var(--forest-green);
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 35%);
 }
 
+/* Badges estilizados */
 .badge-code {
-    background-color: var(--primary-light);
-    color: var(--primary-color);
+    background-color: var(--purple-light);
+    color: var(--purple-accent);
     font-weight: 700;
-    font-size: 0.8rem;
-    padding: 0.35rem 0.65rem;
-    border-radius: 8px;
-    letter-spacing: 0.5px;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
 }
 
 .badge-spots {
-    font-size: 0.8rem;
-    padding: 0.35rem 0.65rem;
-    border-radius: 8px;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
     font-weight: 600;
 }
 
-/* Buttons */
+/* Lista de Temas / Qué aprenderás */
+.workshop-topics {
+    background-color: #faf8f5;
+    border: 1px dashed #e8dfd1;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.6rem;
+}
+
+.workshop-topics ul {
+    margin-bottom: 0;
+    padding-left: 1.2rem;
+}
+
+.workshop-topics li {
+    font-size: 0.78rem;
+    color: #4b5563;
+    margin-bottom: 2px;
+}
+
+/* Botones en Naranja Cálido */
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--orange-primary);
+    border-color: var(--orange-primary);
+    color: #ffffff;
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.15s ease-in-out;
 }
 
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--orange-hover);
+    border-color: var(--orange-hover);
+    color: #ffffff;
 }
 
 .btn-enrolled {
-    background-color: #ecfdf5 !important;
+    background-color: #d1fae5 !important;
     color: #065f46 !important;
     border: 1.5px solid #10b981 !important;
     font-weight: 700 !important;
@@ -106,20 +138,10 @@ main {
     cursor: default;
 }
 
-/* Auth Cards */
+/* Card de Login y Registro */
 .auth-card {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-soft);
     border-radius: 16px;
     background: #ffffff;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-/* Tables */
-.table thead th {
-    font-weight: 600;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom-width: 1px;
+    box-shadow: 0 10px 25px rgba(27, 67, 50, 0.08);
 }

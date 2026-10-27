@@ -1,6 +1,30 @@
 // SkillHub Client Application - Vanilla JS & Bootstrap
 const API_BASE_URL = 'http://localhost:5050/api/v1';
 
+// Detailed examples of what each workshop teaches
+const WORKSHOP_SYLLABUS = {
+    'FOT-001': [
+        'Regla de tercios y composición en smartphone',
+        'Manejo de luz natural y contra-luz',
+        'Retoque profesional con Lightroom Mobile'
+    ],
+    'COC-001': [
+        'Amasado al dente: harina 00 y sémola',
+        'Raviolis, fettuccine y tagliatelle desde cero',
+        'Salsas tradicionales: Pomodoro, Pesto y Cacio e Pepe'
+    ],
+    'ORA-001': [
+        'Control del pánico escénico y respiración diafragmática',
+        'Estructura de discursos persuasivos (Storytelling)',
+        'Lenguaje corporal, modulación y contacto visual'
+    ],
+    'DIS-001': [
+        'Jerarquía tipográfica y combinaciones de fuentes',
+        'Psicología del color y contraste accesible',
+        'Creación de layouts limpios para marcas digitales'
+    ]
+};
+
 // State Management via localStorage
 const AuthState = {
     getToken() {
@@ -85,7 +109,7 @@ function renderNavbar() {
 
         navButtons.innerHTML = `
             <span class="navbar-text text-light small me-2">
-                <i class="bi bi-person-circle me-1 text-primary"></i> <strong>${user.fullName}</strong> <span class="badge bg-secondary ms-1">${user.role}</span>
+                <i class="bi bi-person-circle me-1 text-warning"></i> <strong>${user.fullName}</strong> <span class="badge bg-light text-dark ms-1">${user.role}</span>
             </span>
             <button class="btn btn-outline-light btn-sm px-3" onclick="handleLogout()">
                 <i class="bi bi-box-arrow-right me-1"></i> Salir
@@ -104,24 +128,23 @@ function renderNavbar() {
     }
 }
 
-// 1. Load Workshops Catalog & User's Active Enrollments
+// 1. Load Workshops Catalog (Compact 3-column cards with syllabus examples)
 async function loadWorkshops() {
     clearAlert();
     const container = document.getElementById('workshops-container');
     container.innerHTML = `
         <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
+            <div class="spinner-border text-success" role="status"></div>
             <p class="text-muted mt-2">Cargando talleres disponibles...</p>
         </div>
     `;
 
     try {
-        // Fetch workshops
         const response = await fetch(`${API_BASE_URL}/workshops`);
         if (!response.ok) throw new Error('No se pudo obtener el catálogo de talleres.');
         const workshops = await response.json();
 
-        // If user is authenticated as participant, also fetch their active enrollments to detect which workshops they are in
+        // Check active enrollments if user is participant
         const enrolledWorkshopIds = new Set();
         if (AuthState.isAuthenticated() && AuthState.isParticipant()) {
             try {
@@ -147,6 +170,7 @@ async function loadWorkshops() {
             return;
         }
 
+        // Render as col-md-6 col-lg-4 (Compact, less wide cards!)
         container.innerHTML = workshops.map(w => {
             const startDate = new Date(w.startDateTime).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
             const endDate = new Date(w.endDateTime).toLocaleString('es-CO', { timeStyle: 'short' });
@@ -154,43 +178,59 @@ async function loadWorkshops() {
             const hasSpots = w.availableSpots > 0;
             const isAlreadyEnrolled = enrolledWorkshopIds.has(w.id);
 
+            // Syllabus / qué aprenderás
+            const syllabusItems = WORKSHOP_SYLLABUS[w.code] || [
+                'Técnicas fundamentales y ejercicios guiados',
+                'Metodología práctica con retroalimentación en vivo'
+            ];
+
             return `
-                <div class="col-md-6 col-lg-6">
-                    <div class="card card-workshop h-100 p-4 ${isAlreadyEnrolled ? 'enrolled-card' : ''}">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-workshop h-100 p-3 ${isAlreadyEnrolled ? 'enrolled-card' : ''}">
                         <div class="card-body d-flex flex-column p-0">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge badge-code">${w.code}</span>
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-1">
                                     ${isAlreadyEnrolled ? `
                                         <span class="badge bg-success text-white badge-spots">
                                             <i class="bi bi-check-circle-fill me-1"></i> Inscrito
                                         </span>
                                     ` : ''}
                                     <span class="badge ${spotsClass} badge-spots">
-                                        <i class="bi bi-people-fill me-1"></i> ${w.availableSpots} / ${w.maxCapacity} cupos
+                                        <i class="bi bi-people-fill me-1"></i> ${w.availableSpots}/${w.maxCapacity}
                                     </span>
                                 </div>
                             </div>
 
-                            <h5 class="card-title fw-bold text-dark mb-2">${w.title}</h5>
-                            <p class="card-text text-muted small flex-grow-1">${w.description}</p>
+                            <h6 class="fw-bold text-dark mb-1 fs-6">${w.title}</h6>
+                            <p class="card-text text-muted small mb-2 flex-grow-0" style="font-size: 0.82rem;">${w.description}</p>
 
-                            <div class="border-top pt-3 mt-3">
-                                <div class="small text-secondary mb-1">
-                                    <i class="bi bi-person-badge text-primary me-1"></i> <strong>Instructor:</strong> ${w.instructor.fullName} (${w.instructor.specialty})
+                            <!-- Mini Syllabus: Qué aprenderás en este taller -->
+                            <div class="workshop-topics mb-3 flex-grow-1">
+                                <div class="small fw-bold text-dark mb-1" style="font-size: 0.75rem;">
+                                    <i class="bi bi-lightbulb-fill text-warning me-1"></i> Qué aprenderás:
                                 </div>
-                                <div class="small text-secondary mb-3">
-                                    <i class="bi bi-calendar3 text-primary me-1"></i> <strong>Horario:</strong> ${startDate} - ${endDate}
+                                <ul>
+                                    ${syllabusItems.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+
+                            <div class="border-top pt-2 mt-auto">
+                                <div class="small text-secondary mb-1" style="font-size: 0.8rem;">
+                                    <i class="bi bi-person-fill text-success me-1"></i> <strong>Instructor:</strong> ${w.instructor.fullName}
+                                </div>
+                                <div class="small text-secondary mb-3" style="font-size: 0.8rem;">
+                                    <i class="bi bi-clock-fill text-success me-1"></i> <strong>Horario:</strong> ${startDate}
                                 </div>
 
                                 ${isAlreadyEnrolled ? `
-                                    <button class="btn btn-enrolled w-100 py-2" disabled>
-                                        <i class="bi bi-check-lg me-1"></i> Ya estás inscrito en este taller
+                                    <button class="btn btn-enrolled w-100 py-2 small" disabled>
+                                        <i class="bi bi-check-lg me-1"></i> Inscrito en este taller
                                     </button>
                                 ` : `
-                                    <button class="btn btn-primary w-100 py-2 fw-semibold ${!hasSpots ? 'disabled' : ''}" 
+                                    <button class="btn btn-primary w-100 py-2 small fw-semibold ${!hasSpots ? 'disabled' : ''}" 
                                             onclick="handleEnroll('${w.id}')">
-                                        <i class="bi bi-plus-circle me-1"></i> ${hasSpots ? 'Inscribirme al Taller' : 'Sin Cupos Disponibles'}
+                                        <i class="bi bi-plus-circle me-1"></i> ${hasSpots ? 'Inscribirme al Taller' : 'Sin Cupos'}
                                     </button>
                                 `}
                             </div>
@@ -252,7 +292,7 @@ async function loadMyEnrollments() {
     tbody.innerHTML = `
         <tr>
             <td colspan="6" class="text-center py-4">
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
                 <span class="ms-2 text-muted">Cargando tus inscripciones...</span>
             </td>
         </tr>
@@ -305,7 +345,7 @@ async function loadMyEnrollments() {
                                 <button class="btn btn-outline-danger" title="Cancelar inscripción" onclick="handleCancel('${e.id}', '${e.workshopTitle}')">
                                     <i class="bi bi-x-circle me-1"></i> Cancelar
                                 </button>
-                                <button class="btn btn-outline-primary" title="Descargar Constancia PDF" onclick="handleDownloadCertificate('${e.id}')">
+                                <button class="btn btn-outline-success" title="Descargar Constancia PDF" onclick="handleDownloadCertificate('${e.id}')">
                                     <i class="bi bi-file-earmark-pdf me-1"></i> Descargar PDF
                                 </button>
                             ` : `
